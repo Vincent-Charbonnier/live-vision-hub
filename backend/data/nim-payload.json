@@ -1,0 +1,26 @@
+{
+    "max_tokens":  8,
+    "messages":  [
+                     {
+                         "content":  "Classify facial emotion. Return exactly one word from this list only: happy, joy, excited, smile, sad, angry, fear, disgust, frustrated, neutral.",
+                         "role":  "system"
+                     },
+                     {
+                         "content":  [
+                                         {
+                                             "text":  "What is the facial emotion in this image?",
+                                             "type":  "text"
+                                         },
+                                         {
+                                             "image_url":  {
+                                                               "url":  "data:image/jpeg;base64,cHJvYmU="
+                                                           },
+                                             "type":  "image_url"
+                                         }
+                                     ],
+                         "role":  "user"
+                     }
+                 ],
+    "model":  "nvidia/nemotron-nano-12b-v2-vl",
+    "temperature":  0
+}

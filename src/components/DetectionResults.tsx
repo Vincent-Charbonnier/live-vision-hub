@@ -5,6 +5,7 @@ interface DetectionResultsProps {
   isActive: boolean;
   lastResponse: Record<string, unknown> | null;
   sentiment: string | null;
+  emotionCounts: Record<string, number>;
   error: string | null;
 }
 
@@ -13,8 +14,15 @@ const DetectionResults = ({
   isActive,
   lastResponse,
   sentiment,
+  emotionCounts,
   error,
 }: DetectionResultsProps) => {
+  const summary = Object.entries(emotionCounts)
+    .filter(([, count]) => count > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([emotion, count]) => `${count} ${emotion}`)
+    .join(", ");
+
   if (error) {
     return (
       <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4">
@@ -55,10 +63,13 @@ const DetectionResults = ({
       <div className="flex items-center justify-between rounded-xl border-glow bg-card p-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Face Sentiment
+            Face Emotion
           </p>
           <p className="text-2xl font-bold text-foreground">
             {sentiment ?? "—"}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {summary || "No emotion breakdown yet"}
           </p>
         </div>
       </div>
