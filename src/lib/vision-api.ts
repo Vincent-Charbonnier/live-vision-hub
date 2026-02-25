@@ -3,14 +3,14 @@ interface VisionResponse {
   [key: string]: unknown;
 }
 
-const DEFAULT_BACKEND = "http://localhost:8000";
+const DEFAULT_BACKEND = "";
 
 export function getBackendUrl(): string {
-  return DEFAULT_BACKEND;
+  return localStorage.getItem("vision-backend-url") || DEFAULT_BACKEND;
 }
 
 export function setBackendUrl(url: string) {
-  void url;
+  localStorage.setItem("vision-backend-url", url);
 }
 
 export async function sendFrameToBackend(blob: Blob): Promise<VisionResponse> {

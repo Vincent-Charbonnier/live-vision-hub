@@ -2,7 +2,7 @@ import os
 import shutil
 
 chart_name = "live-vision"
-chart_version = "0.0.1"
+chart_version = "0.0.2"
 base_dir = f"./{chart_name}"
 templates_dir = os.path.join(base_dir, "templates")
 
@@ -39,11 +39,11 @@ replicaCount:
 image:
   frontend:
     repository: vinchar/live-vision-hub
-    tag: "0.0.1"
+    tag: "0.0.2"
     pullPolicy: IfNotPresent
   backend:
-    repository: live-vision-backend
-    tag: "0.0.1"
+    repository: vinchar/live-vision-backend
+    tag: "0.0.2"
     pullPolicy: IfNotPresent
 
 service:
