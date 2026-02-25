@@ -4,7 +4,6 @@ import { sendFrameToBackend } from "@/lib/vision-api";
 import CameraView from "@/components/CameraView";
 import CameraControls from "@/components/CameraControls";
 import DetectionResults from "@/components/DetectionResults";
-import BackendConfig from "@/components/BackendConfig";
 import { Scan } from "lucide-react";
 
 const Index = () => {
@@ -13,12 +12,16 @@ const Index = () => {
   const [apiError, setApiError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [frameCount, setFrameCount] = useState(0);
+  const [sentimentResult, setSentimentResult] = useState<string | null>(null);
 
   const handleFrame = useCallback(async (blob: Blob) => {
     setIsScanning(true);
     try {
       const data = await sendFrameToBackend(blob);
       setFaceCount(data.face_count);
+      setSentimentResult(
+        typeof data.sentiment === "string" ? data.sentiment : null,
+      );
       setLastResponse(data as Record<string, unknown>);
       setApiError(null);
       setFrameCount((c) => c + 1);
@@ -61,7 +64,6 @@ const Index = () => {
                 {frameCount} frames
               </span>
             )}
-            <BackendConfig />
           </div>
         </div>
       </header>
@@ -84,6 +86,7 @@ const Index = () => {
             faceCount={faceCount}
             isActive={isActive}
             lastResponse={lastResponse}
+            sentiment={sentimentResult}
             error={cameraError || apiError}
           />
         </div>

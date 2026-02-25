@@ -1,73 +1,75 @@
-# Welcome to your Lovable project
+# Live Vision Hub (HPE Demo)
 
-## Project info
+Live Vision Hub is a lightweight web UI that captures camera frames in the browser and sends them to a backend for real-time face detection.  
+It is designed as a demo-friendly frontend that can run locally or be containerized with Docker.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## Overview
 
-There are several ways of editing your application.
+The application provides:
 
-**Use Lovable**
+- Browser-based camera capture
+- 1 frame/sec streaming to a backend `/vision` endpoint
+- Live face count display
+- Raw response viewer for debugging
+- Backend URL configuration from the UI
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## Architecture
 
-**Use your preferred IDE**
+- Frontend: React + Vite + Tailwind
+- Backend: External `/vision` endpoint (FastAPI or equivalent) returning JSON
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Expected response shape:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```json
+{ "face_count": 2, "any_other_fields": "..." }
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Configuration
 
-**Use GitHub Codespaces**
+The backend URL can be configured from the UI via the settings icon.  
+If left blank, the app uses same-origin requests (`/vision`).
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## Docker Usage
 
-This project is built with:
+Build and run the frontend container:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```sh
+docker build -t live-vision-hub .
+docker run -d --name live-vision-hub -p 3000:80 --restart unless-stopped live-vision-hub
+```
 
-## How can I deploy this project?
+Then point the backend URL in the UI to your vision service (for example `http://localhost:8000`).
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## Repository Structure
 
-Yes, you can!
+| File/Folder | Description |
+|---|---|
+| `Dockerfile` | Frontend build + nginx runtime image |
+| `nginx.conf` | SPA routing for the static build |
+| `src/` | React frontend source |
+| `src/lib/vision-api.ts` | Backend request logic |
+| `src/hooks/use-camera.ts` | Camera capture + frame scheduling |
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Troubleshooting
+
+### Backend errors
+
+- Ensure your backend exposes `POST /vision` and accepts `multipart/form-data` with a `frame` field.
+- Check CORS settings if the backend is on a different host/port.
+
+### Camera access denied
+
+- Allow camera permissions in your browser.
+- Verify the app is served over HTTPS if required by the browser.

@@ -4,10 +4,17 @@ interface DetectionResultsProps {
   faceCount: number | null;
   isActive: boolean;
   lastResponse: Record<string, unknown> | null;
+  sentiment: string | null;
   error: string | null;
 }
 
-const DetectionResults = ({ faceCount, isActive, lastResponse, error }: DetectionResultsProps) => {
+const DetectionResults = ({
+  faceCount,
+  isActive,
+  lastResponse,
+  sentiment,
+  error,
+}: DetectionResultsProps) => {
   if (error) {
     return (
       <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4">
@@ -43,6 +50,17 @@ const DetectionResults = ({ faceCount, isActive, lastResponse, error }: Detectio
             <span className="text-xs text-primary">LIVE</span>
           </div>
         )}
+      </div>
+
+      <div className="flex items-center justify-between rounded-xl border-glow bg-card p-4">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Face Sentiment
+          </p>
+          <p className="text-2xl font-bold text-foreground">
+            {sentiment ?? "—"}
+          </p>
+        </div>
       </div>
 
       {/* Raw response */}
