@@ -1,0 +1,45 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "live-vision.fullname" . }}
+  labels:
+    {{- include "live-vision.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "live-vision.fullname" . }}-frontend
+                port:
+                  number: {{ .Values.service.frontend.port }}
+          - path: /vision
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "live-vision.fullname" . }}-backend
+                port:
+                  number: {{ .Values.service.backend.port }}
+          - path: /emotion-config
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "live-vision.fullname" . }}-backend
+                port:
+                  number: {{ .Values.service.backend.port }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      secretName: {{ .Values.ingress.tls.secretName | quote }}
+  {{- end }}
+{{- end }}

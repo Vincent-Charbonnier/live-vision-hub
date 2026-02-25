@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "live-vision.fullname" . }}-frontend
+  labels:
+    {{- include "live-vision.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  type: {{ .Values.service.frontend.type }}
+  ports:
+    - port: {{ .Values.service.frontend.port }}
+      targetPort: {{ .Values.service.frontend.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ include "live-vision.name" . }}
+    app.kubernetes.io/component: frontend

@@ -1,0 +1,22 @@
+Thank you for installing the live-vision chart.
+
+This chart deploys:
+  - frontend (React/nginx) on port 80
+  - backend (FastAPI) on port 8000
+
+Emotion runtime configuration:
+  - .Values.emotion.endpoint
+  - .Values.emotion.model
+  - EMOTION_TOKEN from secret:
+      name: {{ include "live-vision.emotionTokenSecretName" . }}
+      key:  {{ .Values.emotion.tokenSecretKey }}
+
+If you want the chart to create the token secret:
+  emotion.createTokenSecret: true
+  emotion.tokenValue: "<token>"
+
+Install:
+  helm install live-vision ./live-vision
+
+Upgrade:
+  helm upgrade --install live-vision ./live-vision -f my-values.yaml

@@ -1,0 +1,94 @@
+replicaCount:
+  frontend: 1
+  backend: 1
+
+image:
+  frontend:
+    repository: vinchar/live-vision-hub
+    tag: "0.0.1"
+    pullPolicy: IfNotPresent
+  backend:
+    repository: live-vision-backend
+    tag: "0.0.1"
+    pullPolicy: IfNotPresent
+
+service:
+  frontend:
+    type: ClusterIP
+    port: 80
+  backend:
+    type: ClusterIP
+    port: 8000
+
+resources:
+  frontend:
+    limits: {}
+    requests: {}
+  backend:
+    limits: {}
+    requests: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+readinessProbe:
+  frontend:
+    path: "/"
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  backend:
+    path: "/health"
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+
+livenessProbe:
+  frontend:
+    path: "/"
+    initialDelaySeconds: 30
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  backend:
+    path: "/health"
+    initialDelaySeconds: 30
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+
+persistence:
+  enabled: false
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+
+emotion:
+  endpoint: ""
+  model: "nvidia/nemotron-nano-12b-v2-vl"
+  tokenSecretName: ""
+  tokenSecretKey: "token"
+  createTokenSecret: false
+  tokenValue: ""
+
+ingress:
+  enabled: false
+  className: ""
+  host: live-vision.example.com
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: ""
+
+istio:
+  enabled: true
+  gateway: "istio-system/ezaf-gateway"
+  host: "live-vision.${DOMAIN_NAME}"

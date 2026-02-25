@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "live-vision.fullname" . }}-backend
+  labels:
+    {{- include "live-vision.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.replicaCount.backend }}
+  selector:
+    matchLabels:
+      app: {{ include "live-vision.name" . }}
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        app: {{ include "live-vision.name" . }}
+        app.kubernetes.io/component: backend
+    spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: backend
+          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.backend.port }}
+          env:
+            - name: EMOTION_ENDPOINT
+              value: {{ .Values.emotion.endpoint | quote }}
+            - name: EMOTION_MODEL
+              value: {{ .Values.emotion.model | quote }}
+            - name: EMOTION_CONFIG_PATH
+              value: "/data/emotion-config.json"
+            - name: EMOTION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "live-vision.emotionTokenSecretName" . }}
+                  key: {{ .Values.emotion.tokenSecretKey | quote }}
+                  optional: true
+          volumeMounts:
+            - name: backend-data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.backend.path | quote }}
+              port: {{ .Values.service.backend.port }}
+            initialDelaySeconds: {{ .Values.readinessProbe.backend.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.backend.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.backend.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.backend.failureThreshold }}
+            successThreshold: {{ .Values.readinessProbe.backend.successThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.backend.path | quote }}
+              port: {{ .Values.service.backend.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.backend.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.backend.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.backend.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.backend.failureThreshold }}
+            successThreshold: {{ .Values.livenessProbe.backend.successThreshold }}
+          resources:
+            {{- toYaml .Values.resources.backend | nindent 12 }}
+      volumes:
+        - name: backend-data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "live-vision.fullname" . }}-backend-data
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

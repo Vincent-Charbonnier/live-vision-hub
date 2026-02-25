@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "live-vision.fullname" . }}-frontend
+  labels:
+    {{- include "live-vision.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: {{ .Values.replicaCount.frontend }}
+  selector:
+    matchLabels:
+      app: {{ include "live-vision.name" . }}
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        app: {{ include "live-vision.name" . }}
+        app.kubernetes.io/component: frontend
+    spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: frontend
+          image: "{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
+          imagePullPolicy: {{ .Values.image.frontend.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.frontend.port }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.frontend.path | quote }}
+              port: {{ .Values.service.frontend.port }}
+            initialDelaySeconds: {{ .Values.readinessProbe.frontend.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.frontend.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.frontend.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.frontend.failureThreshold }}
+            successThreshold: {{ .Values.readinessProbe.frontend.successThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.frontend.path | quote }}
+              port: {{ .Values.service.frontend.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.frontend.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.frontend.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.frontend.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.frontend.failureThreshold }}
+            successThreshold: {{ .Values.livenessProbe.frontend.successThreshold }}
+          resources:
+            {{- toYaml .Values.resources.frontend | nindent 12 }}
