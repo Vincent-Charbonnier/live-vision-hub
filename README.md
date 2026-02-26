@@ -33,7 +33,7 @@ The application provides:
       - sentiment bucket (positive|neutral|negative)
   - Frontend displays live counts and raw backend response.
 
-<img width="1022" height="428" alt="image" src="https://github.com/user-attachments/assets/537ad56e-b1fb-496e-8c30-4a1a0fbb5aee" />
+<img width="995" height="402" alt="image" src="https://github.com/user-attachments/assets/3582629e-924b-456b-b409-993079445d4b" />
 
 Main backend endpoints:
 
