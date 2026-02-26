@@ -21,10 +21,19 @@ The application provides:
 
 ## Architecture
 
-- Frontend: React + Vite + Tailwind (`src/`)
-- Backend: FastAPI (`backend/main.py`)
-- Emotion inference: OpenAI-compatible Vision endpoint (configured at runtime)
-- Face localization: server-side OpenCV face detection and per-face emotion aggregation
+  - Frontend (React/Vite) captures webcam frames in the browser and POSTs them to backend /vision.
+  - Backend (FastAPI) runs CPU face detection with OpenCV Haar cascade (haarcascade_frontalface_default).
+  - Backend crops detected face regions from each frame.
+  - For each face crop, backend calls external VLM endpoint (NVIDIA NIM, OpenAI-compatible /v1/chat/completions) to
+    infer emotion.
+  - Backend aggregates per-face emotions into:
+      - face_count
+      - emotion_counts (e.g., 2 neutral, 1 happy)
+      - emotion_detail (dominant label)
+      - sentiment bucket (positive|neutral|negative)
+  - Frontend displays live counts and raw backend response.
+
+<img width="1022" height="428" alt="image" src="https://github.com/user-attachments/assets/537ad56e-b1fb-496e-8c30-4a1a0fbb5aee" />
 
 Main backend endpoints:
 
