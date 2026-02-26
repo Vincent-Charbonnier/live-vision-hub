@@ -293,6 +293,9 @@ async def vision(frame: UploadFile = File(...)):
     sentiment_source = "nim-chat"
     sentiment_error = None
     emotion_raw = None
+    detected_faces = 0
+    analyzed_faces = 0
+    counts_source = "none"
 
     np_img = np.frombuffer(data, dtype=np.uint8)
     img = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
@@ -305,6 +308,7 @@ async def vision(frame: UploadFile = File(...)):
             minSize=(48, 48),
         )
         face_count = len(faces)
+        detected_faces = face_count
 
         if face_count > 0:
             # Limit per-frame model calls for latency and cost.
@@ -314,6 +318,7 @@ async def vision(frame: UploadFile = File(...)):
                 ok, enc = cv2.imencode(".jpg", face_crop)
                 if ok:
                     cropped_blobs.append(enc.tobytes())
+            analyzed_faces = len(cropped_blobs)
 
             results = []
             for crop_bytes in cropped_blobs:
@@ -329,8 +334,11 @@ async def vision(frame: UploadFile = File(...)):
                 if _has_nonzero_counts(counts):
                     for k, v in counts.items():
                         emotion_counts[k] = emotion_counts.get(k, 0) + v
+                    counts_source = "model-per-face"
                 else:
                     emotion_counts[detail] = emotion_counts.get(detail, 0) + 1
+                    if counts_source == "none":
+                        counts_source = "fallback-per-face"
 
             if raw_chunks:
                 emotion_raw = " | ".join(raw_chunks[:4])
@@ -341,9 +349,11 @@ async def vision(frame: UploadFile = File(...)):
         if _has_nonzero_counts(frame_counts):
             emotion_counts = frame_counts or {}
             face_count = max(1, sum(emotion_counts.values()))
+            counts_source = "model-full-frame"
         else:
             face_count = max(1, face_count)
             emotion_counts = {emotion_detail: face_count}
+            counts_source = "fallback-full-frame"
 
     dominant_detail = _dominant_from_counts(emotion_counts) if emotion_counts else "neutral"
     return {
@@ -355,6 +365,11 @@ async def vision(frame: UploadFile = File(...)):
         "emotion_raw": emotion_raw,
         "sentiment_source": sentiment_source,
         "sentiment_error": sentiment_error,
+        "debug": {
+            "detected_faces": detected_faces,
+            "analyzed_faces": analyzed_faces,
+            "counts_source": counts_source,
+        },
     }
 
 
