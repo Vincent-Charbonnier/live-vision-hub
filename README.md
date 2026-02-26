@@ -142,7 +142,7 @@ The generated chart includes:
 | `live-vision-0.0.1.tgz` | Packaged Helm chart |
 
 ---
-## Try yourself
+## Try it yourself!
 
 <img width="447" height="442" alt="image" src="https://github.com/user-attachments/assets/cca76deb-440b-4b35-987a-5ed9b67ff098" />
 
